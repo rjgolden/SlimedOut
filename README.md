@@ -1,1 +1,1 @@
-Download code and run main.exe from directory.
+Download code and run main.exe from root directory.

@@ -91,10 +91,10 @@ int main()
     Rectangle powerUpRect = {powerUpX, powerUpY, (float)powerUp.width, (float)powerUp.height};
 
     // Load animations
-    Animation hoodyAnimation("src/resources/hoodyIdleAnimation.png", "src/resources/hoodyRunAnimation.png", 6);
+    Animation hoodyAnimation("src/resources/hoodyIdleAnimation.png", "src/resources/hoodyRunAnimation.png", "src/resources/hoodyRunAnimation2.png", 6);
     Animation gemstoneAnimation("src/resources/hoodyGemAnimation.png", "src/resources/hoodyGemAnimation.png", 6);
     Animation enemyAnimation("src/resources/hoodyGuyEnemyAnimation.png", "src/resources/hoodyGuyEnemyAnimation.png", 6);
-    system("cls");
+    //system("cls");
 
     // Main Game Loop
     while (!WindowShouldClose())
@@ -182,7 +182,6 @@ int main()
                 gemstoneAnimation.animateSprite();
                 enemyAnimation.drawSprite();
                 enemyAnimation.animateSprite();
-                //DrawTexture(squishy, playerX, playerY, WHITE);
                 DrawTexture(collectable, collectableX, collectableY, WHITE);
                 DrawTexture(enemy, enemyX, enemyY, WHITE);
                 if(spawnPowerUp){

@@ -1,8 +1,10 @@
 #include "animation.h"
 
+// Default
 Animation::Animation(){
     m_animationTextures[0] = LoadTexture("src/resources/hoodyIdleAnimation.png");
     m_animationTextures[1] = LoadTexture("src/resources/hoodyRunAnimation.png");
+    m_animationTextures[2] = LoadTexture("src/resources/hoodyRunAnimation2.png");
     m_animationRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height };
     m_hitboxRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height };
     m_currentFrame = 0; // Starting frame
@@ -13,13 +15,17 @@ Animation::Animation(){
     m_positionX = rand() % 900; 
     m_positionY = rand() % 400; 
     m_playerSpeed = 3.0f;
+    m_direction = 0;
+    m_lastDirection = 0;
 }
 
+// Destructor
 Animation::~Animation(){
     UnloadTexture(m_animationTextures[0]);
     UnloadTexture(m_animationTextures[1]);
 }
 
+// Meat and Potatoes
 Animation::Animation(const char* filePath, const char* filePath2, int frameCount){
 
     // Load textures
@@ -36,6 +42,34 @@ Animation::Animation(const char* filePath, const char* filePath2, int frameCount
     m_runningTime = 0.0f; 
     m_updateTime = 1.0f / 12.0f; 
     m_idle = true; 
+    m_direction = 0;
+    m_lastDirection = 0;
+
+    // position and speed
+    m_positionX = rand() % 900; 
+    m_positionY = rand() % 400; 
+    m_playerSpeed = 3.0f; //temp, not meant for animatio class
+}
+
+Animation::Animation(const char* filePath, const char* filePath2, const char* filePath3, int frameCount){
+    
+    // Load textures
+    m_animationTextures[0] = LoadTexture(filePath); 
+    m_animationTextures[1] = LoadTexture(filePath2);
+    m_animationTextures[2] = LoadTexture(filePath3);
+
+    // Rectangles 
+    m_animationRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height }; 
+    m_hitboxRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height };
+
+    // frame stuff
+    m_currentFrame = 0; // Starting frame
+    m_frameCount = frameCount; // Number of frames in the idle animation
+    m_runningTime = 0.0f; 
+    m_updateTime = 1.0f / 12.0f; 
+    m_idle = true; 
+    m_direction = 0;
+    m_lastDirection = 0;
 
     // position and speed
     m_positionX = rand() % 900; 
@@ -55,11 +89,16 @@ void Animation::animateSprite(){
 }
 
 void Animation::drawSprite(){
-    if(m_idle == true){
-        DrawTextureRec(m_animationTextures[0], m_animationRect, {m_positionX, m_positionY}, WHITE);
+    if(m_direction == 1) { //run left
+        m_lastDirection = 1;
+        DrawTextureRec(m_animationTextures[2], m_animationRect, {m_positionX, m_positionY}, WHITE);
     }
-    else {
+    else if(m_direction == 2){ //run right
+        m_lastDirection = 2;
         DrawTextureRec(m_animationTextures[1], m_animationRect, {m_positionX, m_positionY}, WHITE);
+    }
+    else{
+        DrawTextureRec(m_animationTextures[0], m_animationRect, {m_positionX, m_positionY}, WHITE);
     }
 }
 
@@ -71,23 +110,28 @@ void Animation::Update(){
 
     bool wasIdle = m_idle;
     m_idle = true;
-    
+    m_direction = 0;
+
     // temp, not meant for animation class
     if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)){ 
         m_idle = false;
+        m_direction = 2; 
         m_positionX += m_playerSpeed;
     }
     else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
         m_idle = false;
+        m_direction = 1; 
         m_positionX -= m_playerSpeed;
     }
     if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)){ 
         m_idle = false;
-        m_positionY -= m_playerSpeed;
+        m_direction = m_lastDirection;
+        m_positionY -= m_playerSpeed -0.5f;
     }
     else if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)){ 
         m_idle = false;
-        m_positionY += m_playerSpeed;
+        m_direction = m_lastDirection;
+        m_positionY += m_playerSpeed - 0.5f;
     }
 
     // Reset animation if state changed
@@ -102,6 +146,13 @@ void Animation::Update(){
     drawSprite();
     drawHitbox();
 }
+
+
+
+
+
+
+
 
 
 // getters

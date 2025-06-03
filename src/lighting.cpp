@@ -28,7 +28,7 @@ int main(void){
 
     SetTargetFPS(60);         // Set our game framerate
     //--------------------------------------------------------------------------------------
-
+    Animation hoodyAnimation("src/resources/hoodyIdleAnimation.png", "src/resources/hoodyRunAnimation.png", 6);
     // Main game loop
     while (!WindowShouldClose()) {
         // Update
@@ -42,7 +42,6 @@ int main(void){
         int mouseX = GetMouseX() / scaleFactor;
         int mouseY = GetMouseY() / scaleFactor;
         //std::cout << "Mouse Position: " << mouseX << ", " << mouseY << std::endl;
-
         int RW = 10;
         int RH = 10;
         int RX = mouseX - RW / 2;
@@ -88,7 +87,7 @@ int main(void){
 
         PixRect(mouseX, mouseY, 1, 1, BLUE);
         PixRect(RX, RY, RW, RH, RED);
-
+        hoodyAnimation.Update();
 
         DrawText(TextFormat("FPS: %02f", fps), 10, 10, 20, WHITE);  
         EndDrawing();

@@ -1,1 +1,1 @@
-Download or clone the repo and run main.exe from root directory.
+Download or clone the repo and run ./buildMain.bat to run. All pixel art created by me. 

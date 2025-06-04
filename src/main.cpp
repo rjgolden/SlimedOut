@@ -4,6 +4,8 @@
 #include <ctime>
 #include <cmath>
 #include "animation.h"
+#include "player.h"
+#include "enemy.h"
 
 static float exponent = 1.0f;                 // Audio exponentiation value
 static float averageVolume[400] = { 0.0f };   // Average volume history
@@ -67,34 +69,24 @@ int main()
     float collectableX = rand() % 900; 
     float collectableY = rand() % 400;
 
-    // Control enemy position
-    float enemyX = (rand() % 900);
-    float enemyY = (rand() % 400);
-    float speed = 2.0;
-
     // Power-up variables
     bool spawnPowerUp = false;
     bool powerUpSpawned = false;
-    float powerUpY = (rand() % 900); 
-    float powerUpX = (rand() % 900);
 
     // Load all textures
     Texture2D squishy = LoadTexture("src/resources/Squishy.png");        
     Texture2D gameScreen = LoadTexture("src/resources/gameScreen.png"); 
     Texture2D collectable = LoadTexture("src/resources/collectable.png");     
-    Texture2D enemy = LoadTexture("src/resources/enemy.png");  
     Texture2D powerUp = LoadTexture("src/resources/powerUp.png");
 
     // Create hit boxes for player and collectables
     Rectangle collectableRect = {collectableX, collectableY, (float)collectable.width, (float)collectable.height};
-    Rectangle enemyRect = {enemyX, enemyY, (float)enemy.width, (float)enemy.height};
-    Rectangle powerUpRect = {powerUpX, powerUpY, (float)powerUp.width, (float)powerUp.height};
 
     // Load animations
-    Animation hoodyAnimation("src/resources/hoodyIdleAnimation.png", "src/resources/hoodyRunAnimation.png", "src/resources/hoodyRunAnimation2.png", 6);
-    Animation gemstoneAnimation("src/resources/hoodyGemAnimation.png", "src/resources/hoodyGemAnimation.png", 6);
-    Animation enemyAnimation("src/resources/hoodyGuyEnemyAnimation.png", "src/resources/hoodyGuyEnemyAnimation.png", 6);
-    //system("cls");
+    Player hoodyAnimation("src/resources/hoodyIdleAnimation.png", "src/resources/hoodyRunAnimation.png", "src/resources/hoodyRunAnimation2.png", 6);
+    Animation gemstoneAnimation("src/resources/hoodyGemAnimation.png", 6);
+    Enemy enemyAnimation("src/resources/hoodyGuyEnemyAnimation.png", 6);
+    system("cls");
 
     // Main Game Loop
     while (!WindowShouldClose())
@@ -116,32 +108,17 @@ int main()
             // Update hit boxes for player and collectables
             collectableRect.x = (float)collectableX;
             collectableRect.y = (float)collectableY;
-            enemyRect.x = (float)enemyX;
-            enemyRect.y = (float)enemyY;
-            powerUpRect.x = (float)powerUpX;
-            powerUpRect.y = (float)powerUpY;
-            
-            if(IsKeyPressed(KEY_F)) ToggleFullscreen();   
 
-            float dx = hoodyAnimation.getPositionX() - enemyX;
-            float dy = hoodyAnimation.getPositionY() - enemyY;
-            float length = sqrt(dx*dx + dy*dy);
-            if (length > 0) {
-                dx /= length;
-                dy /= length;
-            }
-            enemyX += dx * speed;
-            enemyY += dy * speed;
+            if(IsKeyPressed(KEY_F)) ToggleFullscreen();   
 
             if(score >= 5 && !powerUpSpawned){
                 spawnPowerUp = true;
-                powerUpX = rand() % 900;
-                powerUpY = rand() % 400;
+                gemstoneAnimation.setPosition(rand() % 900, rand() % 400);
                 powerUpSpawned = true;
-                speed = 5.0f;
+                enemyAnimation.setEnemySpeed(5.0f);
             }
 
-            if(CheckCollisionRecs(hoodyAnimation.getAnimationRect(), collectableRect)){
+            if(CheckCollisionRecs(hoodyAnimation.getHitboxRect(), collectableRect)){
                 system("cls");
                 PlaySound(sound);
                 score++;
@@ -150,22 +127,20 @@ int main()
                 collectableY = rand() % 400;
             }   
 
-            if(CheckCollisionRecs(hoodyAnimation.getAnimationRect(), enemyRect)){
+            if(CheckCollisionRecs(hoodyAnimation.getHitboxRect(), enemyAnimation.getHitboxRect())){
                 system("cls");
                 PlaySound(hitSound);
                 lives-=1;
                 std::cout << "Lives: " << lives << "\n";
-                enemyX = hoodyAnimation.getPositionX() + (rand() % 900);
-                enemyY = hoodyAnimation.getPositionY() + (rand() % 400);
+                enemyAnimation.setPosition(hoodyAnimation.getPositionX() + (rand() % 900), hoodyAnimation.getPositionY() + (rand() % 400));
             }   
 
-            if(CheckCollisionRecs(hoodyAnimation.getAnimationRect(), powerUpRect) && spawnPowerUp){
+            if(CheckCollisionRecs(hoodyAnimation.getHitboxRect(), gemstoneAnimation.getHitboxRect()) && spawnPowerUp){
                 system("cls");
                 PlaySound(powerUpSound);
                 std::cout << "Speed Up Collected! Speed: \n";
                 hoodyAnimation.setPlayerSpeed(7.0f);
-                powerUpY = 1000;
-                powerUpX = 1000;
+                gemstoneAnimation.setPosition(rand() % 900, rand() % 400);
                 spawnPowerUp = false;
             }  
 
@@ -177,21 +152,13 @@ int main()
                 DrawTexture(gameScreen, 0, 0, WHITE);
                 DrawText(TextFormat("Score: %02i", score), 380, 30, 40, BLACK);
                 DrawText(TextFormat("Lives: %i", lives), 400, 440, 40, BLACK);
-                hoodyAnimation.Update();
-                gemstoneAnimation.drawSprite();
-                gemstoneAnimation.animateSprite();
-                enemyAnimation.drawSprite();
-                enemyAnimation.animateSprite();
+                hoodyAnimation.updateSprite();
+                enemyAnimation.updateSprite();
+                enemyAnimation.chasePlayer(hoodyAnimation.getPositionX(), hoodyAnimation.getPositionY());
                 DrawTexture(collectable, collectableX, collectableY, WHITE);
-                DrawTexture(enemy, enemyX, enemyY, WHITE);
                 if(spawnPowerUp){
-                    DrawTexture(powerUp, powerUpX, powerUpY, WHITE);
-                    //DrawRectangleLines(powerUpX, powerUpY, powerUp.width, powerUp.height, RED);
+                    gemstoneAnimation.updateSprite();
                 }
-                // Hitboxes
-                //DrawRectangleLines(collectableX, collectableY, collectable.width, collectable.height, RED);
-                //DrawRectangleLines(playerX, playerY, squishy.width, squishy.height, RED);
-                //DrawRectangleLines(enemyX, enemyY, enemy.width, enemy.height, RED);
             EndDrawing();
         }
 
@@ -206,18 +173,15 @@ int main()
                 if(IsKeyPressed(KEY_ENTER)){
                     //re initialize all data
                     score = 0;
-                    hoodyAnimation.setPlayerSpeed(5.0f);
-                    speed = 2.0f;
+                    enemyAnimation.setEnemySpeed(2.0f);
                     lives = 3;
                     spawnPowerUp = false;
                     powerUpSpawned = false;
                     collectableX = rand() % 900; 
                     collectableY = rand() % 400;
-                    enemyX = rand() % 900;
-                    enemyY = rand() % 400;
-                    powerUpX = rand() % 900;
-                    powerUpY = rand() % 400;
-                    hoodyAnimation.setPlayerSpeed(5.0f);
+                    enemyAnimation.setPosition((rand() % 900) , (rand() % 400));
+                    gemstoneAnimation.setPosition(rand() % 900, rand() % 400);
+                    hoodyAnimation.setPlayerSpeed(3.0f);
                     hoodyAnimation.setPosition(220.0f, 300.0f);
                     system("cls");
                     screen = 0;
@@ -230,8 +194,12 @@ int main()
     UnloadTexture(squishy);       
     UnloadTexture(gameScreen);      
     UnloadTexture(collectable);  
-    UnloadTexture(enemy);
     UnloadTexture(powerUp);
+
+    // Unload animations
+    hoodyAnimation.~Player();
+    gemstoneAnimation.~Animation();
+    enemyAnimation.~Enemy();
 
     // Unload sounds
     UnloadMusicStream(music);

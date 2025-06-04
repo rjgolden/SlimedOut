@@ -112,7 +112,7 @@ void Player::updateSprite() {
     setState(m_direction);  // Expensive work only happens when needed
     animateSprite();
     drawSprite();
-    drawHitbox();
+    //drawHitbox();
 
 }
 

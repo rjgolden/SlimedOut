@@ -61,7 +61,7 @@ void Animation::drawHitbox(){
 void Animation::updateSprite(){
     animateSprite();
     drawSprite();
-    drawHitbox();
+    //drawHitbox();
 }
 
 // getters

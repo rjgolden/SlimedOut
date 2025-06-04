@@ -11,9 +11,6 @@ static float exponent = 1.0f;                 // Audio exponentiation value
 static float averageVolume[400] = { 0.0f };   // Average volume history
 static float volume = 0.5f;  // Volume multiplier (0.0 = mute, 1.0 = original volume)
 
-//------------------------------------------------------------------------------------
-// Audio processing function
-//------------------------------------------------------------------------------------
 void ProcessAudio(void *buffer, unsigned int frames)
 {
     float *samples = (float *)buffer;

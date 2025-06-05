@@ -54,12 +54,15 @@ int main()
     Sound hitSound = LoadSound("src/resources/hitSound.mp3");
     Sound gameOverSound = LoadSound("src/resources/gameOverSound.mp3"); 
     Sound powerUpSound = LoadSound("src/resources/powerUpSound.mp3");
+    Sound enemyHurtSound = LoadSound("src/resources/enemyHurtSound.mp3");
+    Sound enemyHurtSound2 = LoadSound("src/resources/enemyHurtSound.mp3");
     //PlayMusicStream(music);
 
     // Game flow variables
     int screen = 0;
     int score = 0;
     int lives = 3;
+    int enemiesKilled = 0;
 
     // Random spaces for collectables
     srand(time(0));
@@ -82,7 +85,7 @@ int main()
     // Load animations
     Player hoodyAnimation("src/resources/hoodyIdleAnimation.png", "src/resources/hoodyRunAnimation.png", "src/resources/hoodyRunAnimation2.png", 6);
     Animation gemstoneAnimation("src/resources/hoodyGemAnimation.png", 6);
-    Enemy enemyAnimation("src/resources/hoodyGuyEnemyAnimation.png", 6);
+    Enemy enemyAnimation("src/resources/hoodyGuyEnemyAnimationBig.png", 6);
     system("cls");
 
     // Main Game Loop
@@ -139,6 +142,15 @@ int main()
                 hoodyAnimation.setPlayerSpeed(7.0f);
                 gemstoneAnimation.setPosition(rand() % 900, rand() % 400);
                 spawnPowerUp = false;
+            }  
+
+            if(CheckCollisionRecs(hoodyAnimation.getAttackRect(),  enemyAnimation.getHitboxRect())){
+                system("cls");
+                int randomSound = rand() % 2; // Randomly choose between two sounds
+                if(randomSound == 0) PlaySound(enemyHurtSound);
+                else PlaySound(enemyHurtSound2);
+                std::cout << "Enemies killed: " << ++enemiesKilled << "\n";   
+                enemyAnimation.setPosition(rand() % 900, rand() % 400);
             }  
 
             if(lives == 0){

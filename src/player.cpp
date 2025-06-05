@@ -5,6 +5,7 @@ Player::Player(){
     m_animationTextures[0] = LoadTexture("src/resources/hoodyIdleAnimation.png");
     m_animationTextures[1] = LoadTexture("src/resources/hoodyRunAnimation.png");
     m_animationTextures[2] = LoadTexture("src/resources/hoodyRunAnimation2.png");
+    m_swordSlashSound = LoadSound("src/resources/swordSlash.mp3");
 
     m_animationRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height };
     m_hitboxRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height };
@@ -21,11 +22,14 @@ Player::Player(){
     m_positionX = rand() % 900;
     m_positionY = rand() % 400;
     m_playerSpeed = 3.0f; //temp, not meant for animatio class
+    m_attackRect = { 0.0f, 0.0f, 0.0f, 0.0f};
+
 }
 Player::~Player() {
     UnloadTexture(m_animationTextures[0]);
     UnloadTexture(m_animationTextures[1]);
     UnloadTexture(m_animationTextures[2]);
+    UnloadSound(m_swordSlashSound);
 }
 
 // meat and potatoes
@@ -34,6 +38,8 @@ Player::Player(const char* filePath, const char* filePath2, const char* filePath
     m_animationTextures[0] = LoadTexture(filePath); 
     m_animationTextures[1] = LoadTexture(filePath2);
     m_animationTextures[2] = LoadTexture(filePath3);
+    m_currentTexture = &m_animationTextures[0]; // idle
+    m_swordSlashSound = LoadSound("src/resources/swordSlash.mp3");
 
     // Rectangles 
     m_animationRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height }; 
@@ -52,6 +58,7 @@ Player::Player(const char* filePath, const char* filePath2, const char* filePath
     m_direction = 0;
     m_lastDirection = 0;
     m_playerSpeed = 3.0f; 
+    m_attackRect = { m_positionX, m_positionY, 0.0f, 0.0f};
 }
 
 void Player::drawSprite(){
@@ -76,46 +83,94 @@ void Player::setState(int newState){
 void Player::updateSprite() {
 
     bool wasIdle = m_idle;
-    m_idle = true;
     m_direction = 0;
+    m_attackRect.x = m_positionX + 8.0f;
+    m_attackRect.y = m_positionY + 8.0f; 
+    m_attackRect.width = 5.0f; 
+    m_attackRect.height = 5.0f; 
 
-    // temp, not meant for animation class
-    if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)){ 
+    //---------------//
+    if (IsKeyDown(KEY_D)){ 
         m_idle = false;
         m_direction = 2; 
         m_positionX += m_playerSpeed;
     }
-    else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
+    else if (IsKeyDown(KEY_A)) {
         m_idle = false;
         m_direction = 1; 
         m_positionX -= m_playerSpeed;
     }
-    if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)){ 
+    if (IsKeyDown(KEY_W)){ 
         m_idle = false;
         m_direction = m_lastDirection;
         m_positionY -= m_playerSpeed -0.5f;
     }
-    else if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)){ 
+    else if (IsKeyDown(KEY_S)){ 
         m_idle = false;
         m_direction = m_lastDirection;
         m_positionY += m_playerSpeed - 0.5f;
     }
+
+
+    if(IsKeyDown(KEY_RIGHT)){
+        m_attackRect.x = m_positionX + 28.0f; 
+        m_attackRect.y = m_positionY + 8.0f;
+        m_attackRect.width = 35.0f;
+        m_attackRect.height = 15.0f;
+        PlaySound(m_swordSlashSound);
+    }
+    else if(IsKeyDown(KEY_LEFT)){
+        m_attackRect.x = m_positionX - 28.0f; 
+        m_attackRect.y = m_positionY + 8.0f;
+        m_attackRect.width = 35.0f; 
+        m_attackRect.height = 15.0f; 
+        PlaySound(m_swordSlashSound);
+    }
+    else if(IsKeyDown(KEY_UP)){
+        m_attackRect.x = m_positionX + 8.0f; 
+        m_attackRect.y = m_positionY - 28.0f;
+        m_attackRect.width = 15.0f;
+        m_attackRect.height = 35.0f;
+        PlaySound(m_swordSlashSound);
+    }
+    else if(IsKeyDown(KEY_DOWN)){
+        m_attackRect.x = m_positionX + 8.0f; 
+        m_attackRect.y = m_positionY + 28.0f;
+        m_attackRect.width = 15.0f; 
+        m_attackRect.height = 35.0f; 
+        PlaySound(m_swordSlashSound);
+    }
+
 
     // Reset animation if state changed
     if (wasIdle != m_idle) {
         m_currentFrame = 0;
         m_runningTime = 0.0f;
     }
-
+    
+    //---------------//
     m_hitboxRect.x = m_positionX; 
     m_hitboxRect.y = m_positionY;
-    setState(m_direction);  // Expensive work only happens when needed
+
+    //---------------//
+    setState(m_direction);  
     animateSprite();
     drawSprite();
-    //drawHitbox();
+
+    //---------------//
+    drawHitbox();
+    drawAttackHitbox();
 
 }
 
 void Player::setPlayerSpeed(float speed) {
     m_playerSpeed = speed;
+}
+
+void Player::drawAttackHitbox(){
+     DrawRectangleLines(m_attackRect.x, m_attackRect.y, m_attackRect.width, m_attackRect.height, GREEN);
+}
+
+Rectangle Player::getAttackRect() {
+    return m_attackRect;
 }

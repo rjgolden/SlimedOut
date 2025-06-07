@@ -19,8 +19,8 @@ Player::Player(){
     m_lastDirection = 0;
 
     // position and speed
-    m_positionX = rand() % 900;
-    m_positionY = rand() % 400;
+    m_positionX = rand() % 540;
+    m_positionY = rand() % 360;
     m_playerSpeed = 3.0f; //temp, not meant for animatio class
     m_attackRect = { 0.0f, 0.0f, 0.0f, 0.0f};
 
@@ -52,8 +52,8 @@ Player::Player(const char* filePath, const char* filePath2, const char* filePath
     m_updateTime = 1.0f / 12.0f; 
 
     // position and speed
-    m_positionX = rand() % 900; 
-    m_positionY = rand() % 400; 
+    m_positionX = rand() % 540; 
+    m_positionY = rand() % 360; 
     m_idle = true; 
     m_direction = 0;
     m_lastDirection = 0;
@@ -67,15 +67,15 @@ void Player::drawSprite(){
 
 void Player::setState(int newState){
     if (newState != m_currentState) {  // Only change when different
-        std::cout << "setState called\n";
+        //std::cout << "setState called\n";
         m_currentState = newState;
         m_lastDirection = newState;
 
         // Set texture once when state changes
         switch(newState) {
-        case 1: m_currentTexture = &m_animationTextures[2]; break;  // left
-        case 2: m_currentTexture = &m_animationTextures[1]; break;  // right
-        default: m_currentTexture = &m_animationTextures[0]; break; // idle
+            case 1: m_currentTexture = &m_animationTextures[2]; break;  // left
+            case 2: m_currentTexture = &m_animationTextures[1]; break;  // right
+            default: m_currentTexture = &m_animationTextures[0]; break; // idle
         }
     }
 }

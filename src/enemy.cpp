@@ -16,9 +16,10 @@ Enemy::Enemy(){
     m_updateTime = 1.0f / 12.0f;
 
     // position and speed
-    m_positionX = rand() % 900; 
-    m_positionY = rand() % 400; 
+    m_positionX = rand() % 540; 
+    m_positionY = rand() % 360; 
     m_enemySpeed = 2.0;
+    m_health = 100;
 }
 Enemy::~Enemy() {
     UnloadTexture(m_animationTextures[0]);
@@ -35,6 +36,7 @@ Enemy::Enemy(const char* filePath, int frameCount){
     // Rectangles 
     m_animationRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height }; 
     m_hitboxRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height };
+    m_healthBarRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, 10.0f }; // Health bar rectangle
 
     // frame stuff
     m_currentFrame = 0; // Starting frame
@@ -43,9 +45,10 @@ Enemy::Enemy(const char* filePath, int frameCount){
     m_updateTime = 1.0f / 12.0f; 
 
     // position and speed
-    m_positionX = rand() % 900; 
-    m_positionY = rand() % 400; 
+    m_positionX = rand() % 540; 
+    m_positionY = rand() % 360; 
     m_enemySpeed = 2.0;
+    m_health = 100;
 }
 
 // Multi frame animation enemy
@@ -58,6 +61,7 @@ Enemy::Enemy(const char* filePath, const char* filePath2, const char* filePath3,
     // Rectangles 
     m_animationRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height }; 
     m_hitboxRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height };
+    m_healthBarRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, 10.0f }; // Health bar rectangle
 
     // frame stuff
     m_currentFrame = 0; // Starting frame
@@ -69,6 +73,7 @@ Enemy::Enemy(const char* filePath, const char* filePath2, const char* filePath3,
     m_positionX = rand() % 900; 
     m_positionY = rand() % 400; 
     m_enemySpeed = 2.0;
+    m_health = 100;
 }
 
 void Enemy::chasePlayer(float playerX, float playerY){
@@ -86,3 +91,41 @@ void Enemy::chasePlayer(float playerX, float playerY){
 void Enemy::setEnemySpeed(float speed){
     m_enemySpeed = speed;
 }
+
+int Enemy::getHealth() {
+    return m_health;
+}  
+
+void Enemy::setHealth(int health) {
+    m_health = health;
+}
+
+void Enemy::takeDamage(float damage) {
+    m_health -= damage;
+    if (m_health < 0) {
+        m_health = 0; // Prevent negative health
+    }
+}
+
+void Enemy::drawHealthBar(){
+    // Draw background
+    DrawRectangle(m_healthBarRect.x, m_healthBarRect.y, m_healthBarRect.width, m_healthBarRect.height, GRAY);
+    
+    // Calculate health bar width based on current health
+    float healthWidth = (m_health / 100.0f) * m_healthBarRect.width;
+    
+    // Draw health bar
+    DrawRectangle(m_healthBarRect.x, m_healthBarRect.y, healthWidth, m_healthBarRect.height, RED);
+    DrawRectangleLines(m_healthBarRect.x, m_healthBarRect.y, m_healthBarRect.width, m_healthBarRect.height, BLACK);
+    
+}
+
+void Enemy::updateSprite(){
+    m_healthBarRect.x = m_positionX; 
+    m_healthBarRect.y = m_positionY - 13.0f;
+    animateSprite();
+    drawSprite();
+    //drawHitbox();
+    drawHealthBar();
+}
+    

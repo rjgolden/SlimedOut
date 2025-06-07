@@ -5,6 +5,8 @@ class Enemy : public Animation {
 
     private:
         float m_enemySpeed;
+        float m_health;
+        Rectangle m_healthBarRect; 
         
     public:
         Enemy(const char* filePath, int frameCount);
@@ -13,6 +15,13 @@ class Enemy : public Animation {
         ~Enemy();
 
         void chasePlayer(float playerX, float playerY);
+ 
+        int getHealth();
         void setEnemySpeed(float speed);
+        void setHealth(int health);
+        void takeDamage(float damage);
+
+        void drawHealthBar();
+        void updateSprite();
 
 };

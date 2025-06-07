@@ -9,8 +9,8 @@ Animation::Animation(){
     m_frameCount = 6; // Number of frames in the idle animation
     m_runningTime = 0.0f; 
     m_updateTime = 1.0f / 12.0f; 
-    m_positionX = rand() % 900; 
-    m_positionY = rand() % 400; 
+    m_positionX = rand() % 540; 
+    m_positionY = rand() % 360; 
 }
 
 // Destructor
@@ -35,8 +35,8 @@ Animation::Animation(const char* filePath, int frameCount){
     m_updateTime = 1.0f / 12.0f; 
 
     // position and speed
-    m_positionX = rand() % 900; 
-    m_positionY = rand() % 400; 
+    m_positionX = rand() % 540; 
+    m_positionY = rand() % 360; 
 }
 
 void Animation::animateSprite(){

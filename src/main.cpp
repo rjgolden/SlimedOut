@@ -40,11 +40,10 @@ int main()
 {   
     // Screen setup
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-    InitWindow(1000, 500, "Texture Test");
-    SetWindowMinSize(1000, 500);
+    InitWindow(640, 360, "Texture Test");
+    SetWindowMinSize(640, 360);
     SetTargetFPS(60);
-    SetWindowIcon(LoadImage("src/resources/hoodyIdleAnimation.png"));
-    SetTargetFPS(60);
+    SetWindowIcon(LoadImage("src/resources/powerUp.png"));
 
     // Audio setup
     InitAudioDevice();
@@ -66,8 +65,8 @@ int main()
 
     // Random spaces for collectables
     srand(time(0));
-    float collectableX = rand() % 900; 
-    float collectableY = rand() % 400;
+    float collectableX = rand() % 540; 
+    float collectableY = rand() % 360;
 
     // Power-up variables
     bool spawnPowerUp = false;
@@ -85,7 +84,7 @@ int main()
     // Load animations
     Player hoodyAnimation("src/resources/hoodyIdleAnimation.png", "src/resources/hoodyRunAnimation.png", "src/resources/hoodyRunAnimation2.png", 6);
     Animation gemstoneAnimation("src/resources/hoodyGemAnimation.png", 6);
-    Enemy enemyAnimation("src/resources/hoodyGuyEnemyAnimationBig.png", 6);
+    Enemy enemyAnimation("src/resources/hoodyGuyEnemyAnimation.png", 6);
     system("cls");
 
     // Main Game Loop
@@ -113,7 +112,7 @@ int main()
 
             if(score >= 5 && !powerUpSpawned){
                 spawnPowerUp = true;
-                gemstoneAnimation.setPosition(rand() % 900, rand() % 400);
+                gemstoneAnimation.setPosition(rand() % 540, rand() % 360);
                 powerUpSpawned = true;
                 enemyAnimation.setEnemySpeed(5.0f);
             }
@@ -123,8 +122,8 @@ int main()
                 PlaySound(sound);
                 score++;
                 std::cout << "Score: " << score << "\n";
-                collectableX = rand() % 900; 
-                collectableY = rand() % 400;
+                collectableX = rand() % 540; 
+                collectableY = rand() % 360;
             }   
 
             if(CheckCollisionRecs(hoodyAnimation.getHitboxRect(), enemyAnimation.getHitboxRect())){
@@ -132,7 +131,7 @@ int main()
                 PlaySound(hitSound);
                 lives-=1;
                 std::cout << "Lives: " << lives << "\n";
-                enemyAnimation.setPosition(hoodyAnimation.getPositionX() + (rand() % 900), hoodyAnimation.getPositionY() + (rand() % 400));
+                enemyAnimation.setPosition(hoodyAnimation.getPositionX() + (rand() % 540), hoodyAnimation.getPositionY() + (rand() % 360));
             }   
 
             if(CheckCollisionRecs(hoodyAnimation.getHitboxRect(), gemstoneAnimation.getHitboxRect()) && spawnPowerUp){
@@ -140,17 +139,24 @@ int main()
                 PlaySound(powerUpSound);
                 std::cout << "Speed Up Collected! Speed: \n";
                 hoodyAnimation.setPlayerSpeed(7.0f);
-                gemstoneAnimation.setPosition(rand() % 900, rand() % 400);
+                gemstoneAnimation.setPosition(rand() % 540, rand() % 360);
                 spawnPowerUp = false;
             }  
 
             if(CheckCollisionRecs(hoodyAnimation.getAttackRect(),  enemyAnimation.getHitboxRect())){
                 system("cls");
+
                 int randomSound = rand() % 2; // Randomly choose between two sounds
-                if(randomSound == 0) PlaySound(enemyHurtSound);
-                else PlaySound(enemyHurtSound2);
-                std::cout << "Enemies killed: " << ++enemiesKilled << "\n";   
-                enemyAnimation.setPosition(rand() % 900, rand() % 400);
+                if(randomSound == 0) {PlaySound(enemyHurtSound);}
+                else {PlaySound(enemyHurtSound2);}
+
+                enemyAnimation.takeDamage(5.0f); 
+                std::cout << "Enemies health: " << enemyAnimation.getHealth() << "\n"; 
+                if(enemyAnimation.getHealth() <= 0){
+                    std::cout << "Enemies killed: " << ++enemiesKilled << "\n"; 
+                    enemyAnimation.setHealth(100); // Reset enemy health
+                    enemyAnimation.setPosition(rand() % 540, rand() % 360); // Respawn enemy at random position
+                }
             }  
 
             if(lives == 0){
@@ -186,10 +192,10 @@ int main()
                     lives = 3;
                     spawnPowerUp = false;
                     powerUpSpawned = false;
-                    collectableX = rand() % 900; 
-                    collectableY = rand() % 400;
-                    enemyAnimation.setPosition((rand() % 900) , (rand() % 400));
-                    gemstoneAnimation.setPosition(rand() % 900, rand() % 400);
+                    collectableX = rand() % 540; 
+                    collectableY = rand() % 360;
+                    enemyAnimation.setPosition((rand() % 540) , (rand() % 360));
+                    gemstoneAnimation.setPosition(rand() % 540, rand() % 360);
                     hoodyAnimation.setPlayerSpeed(3.0f);
                     hoodyAnimation.setPosition(220.0f, 300.0f);
                     system("cls");

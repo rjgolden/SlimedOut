@@ -7,6 +7,8 @@ class Enemy : public Animation {
         float m_enemySpeed;
         float m_health;
         Rectangle m_healthBarRect; 
+        Texture2D m_enemyHurt;
+        bool m_hurtFrameActive = false;
         
     public:
         Enemy(const char* filePath, int frameCount);
@@ -22,6 +24,7 @@ class Enemy : public Animation {
         void takeDamage(float damage);
 
         void drawHealthBar();
+        void drawHurtFrame();
         void updateSprite();
 
 };

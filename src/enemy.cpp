@@ -32,6 +32,7 @@ Enemy::Enemy(const char* filePath, int frameCount){
 
     // Load textures
     m_animationTextures[0] = LoadTexture(filePath); 
+    m_enemyHurt = LoadTexture("src/resources/hoodyGuyEnemyHurt.png"); // Load enemy hurt texture
 
     // Rectangles 
     m_animationRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height }; 
@@ -101,6 +102,7 @@ void Enemy::setHealth(int health) {
 }
 
 void Enemy::takeDamage(float damage) {
+    m_hurtFrameActive = true; // Activate hurt frame
     m_health -= damage;
     if (m_health < 0) {
         m_health = 0; // Prevent negative health
@@ -123,9 +125,18 @@ void Enemy::drawHealthBar(){
 void Enemy::updateSprite(){
     m_healthBarRect.x = m_positionX; 
     m_healthBarRect.y = m_positionY - 13.0f;
-    animateSprite();
-    drawSprite();
+    if( m_hurtFrameActive) {
+        drawHurtFrame();
+        m_hurtFrameActive = false; // Reset hurt frame after drawing
+    }
+    else{
+        animateSprite();
+        drawSprite();
+    }
     //drawHitbox();
     drawHealthBar();
 }
     
+void Enemy::drawHurtFrame() {
+    DrawTexture(m_enemyHurt, m_positionX, m_positionY, WHITE);
+}

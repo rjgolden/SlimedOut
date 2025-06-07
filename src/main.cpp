@@ -76,7 +76,6 @@ int main()
     Texture2D squishy = LoadTexture("src/resources/Squishy.png");        
     Texture2D gameScreen = LoadTexture("src/resources/gameScreen.png"); 
     Texture2D collectable = LoadTexture("src/resources/collectable.png");     
-    Texture2D powerUp = LoadTexture("src/resources/powerUp.png");
 
     // Create hit boxes for player and collectables
     Rectangle collectableRect = {collectableX, collectableY, (float)collectable.width, (float)collectable.height};
@@ -98,8 +97,6 @@ int main()
                 DrawText("Texture Test", 225, 100, 80, BLACK);
                 DrawText("Press Enter to Start", 280, 300, 40, BLACK);
                 if(IsKeyPressed(KEY_ENTER)) screen = 1;
-                if(IsKeyPressed(KEY_UP)) ToggleFullscreen();
-                if(IsKeyPressed(KEY_DOWN)) screen = 3;
             EndDrawing();
         }
 
@@ -209,7 +206,6 @@ int main()
     UnloadTexture(squishy);       
     UnloadTexture(gameScreen);      
     UnloadTexture(collectable);  
-    UnloadTexture(powerUp);
 
     // Unload animations
     hoodyAnimation.~Player();

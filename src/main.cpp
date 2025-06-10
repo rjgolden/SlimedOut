@@ -75,7 +75,8 @@ int main()
 
     // Load all textures        
     Texture2D gameScreen = LoadTexture("src/resources/gameScreen.png"); 
-    Texture2D collectable = LoadTexture("src/resources/collectable.png");     
+    Texture2D collectable = LoadTexture("src/resources/collectable.png");
+    Texture2D building = LoadTexture("src/resources/building.png");     
 
     // Create hit boxes for player and collectables
     Rectangle collectableRect = {collectableX, collectableY, (float)collectable.width, (float)collectable.height};
@@ -176,6 +177,7 @@ int main()
                 hoodyAnimation.updateSprite();
                 enemyAnimation.updateSprite();
                 DrawTexture(collectable, collectableX, collectableY, WHITE);
+                DrawTexture(building, 100.0f, 0.0f, WHITE);
                 enemyAnimation.chasePlayer(hoodyAnimation.getPositionX(), hoodyAnimation.getPositionY());
                 for(int i = 0; i < 100; i++) {
                     fireAnimations[i].updateSprite();

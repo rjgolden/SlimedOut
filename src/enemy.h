@@ -1,5 +1,5 @@
 #pragma once
-#include "player.h"
+#include "animation.h"
 
 class Enemy : public Animation {
 

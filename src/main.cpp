@@ -3,6 +3,7 @@
 #include <iostream> 
 #include <ctime>
 #include <cmath>
+#include <vector>
 #include "animation.h"
 #include "player.h"
 #include "enemy.h"
@@ -72,8 +73,7 @@ int main()
     bool spawnPowerUp = false;
     bool powerUpSpawned = false;
 
-    // Load all textures
-    Texture2D squishy = LoadTexture("src/resources/Squishy.png");        
+    // Load all textures        
     Texture2D gameScreen = LoadTexture("src/resources/gameScreen.png"); 
     Texture2D collectable = LoadTexture("src/resources/collectable.png");     
 
@@ -82,7 +82,15 @@ int main()
 
     // Load animations
     Player hoodyAnimation("src/resources/hoodyIdleAnimation.png", "src/resources/hoodyRunAnimation.png", "src/resources/hoodyRunAnimation2.png", 6);
-    Animation gemstoneAnimation("src/resources/hoodyGemAnimation.png", 6);
+    Animation gemstoneAnimation("src/resources/hoodyGemAnimation.png", 6, 500.0f, 500.0f);
+
+
+    
+    std::vector<Animation> fireAnimations;
+    fireAnimations.reserve(100);
+    for (int i = 0; i < 100; i++) {
+        fireAnimations.emplace_back("src/resources/fireSpriteAnimation.png", 6, rand() % 540, rand() % 360);
+    }
     Enemy enemyAnimation("src/resources/hoodyGuyEnemyAnimation.png", 6);
     system("cls");
 
@@ -94,8 +102,8 @@ int main()
         if(screen == 0){ // splash screen 
             BeginDrawing();
                 DrawTexture(gameScreen, 0, 0, WHITE);
-                DrawText("Texture Test", 225, 100, 80, BLACK);
-                DrawText("Press Enter to Start", 280, 300, 40, BLACK);
+                DrawText("Texture Test", 50, 100, 80, BLACK);
+                DrawText("Press Enter to Start", 100, 300, 40, BLACK);
                 if(IsKeyPressed(KEY_ENTER)) screen = 1;
             EndDrawing();
         }
@@ -162,12 +170,16 @@ int main()
 
             BeginDrawing();
                 DrawTexture(gameScreen, 0, 0, WHITE);
-                DrawText(TextFormat("Score: %02i", score), 380, 30, 40, BLACK);
+                DrawText(TextFormat("Score: %02i", score), 300, 30, 40, BLACK);
+                DrawText(TextFormat("Time Elapsed: %02f", GetTime()), 200, 10, 20, BLACK);
                 DrawText(TextFormat("Lives: %i", lives), 400, 440, 40, BLACK);
                 hoodyAnimation.updateSprite();
                 enemyAnimation.updateSprite();
-                enemyAnimation.chasePlayer(hoodyAnimation.getPositionX(), hoodyAnimation.getPositionY());
                 DrawTexture(collectable, collectableX, collectableY, WHITE);
+                enemyAnimation.chasePlayer(hoodyAnimation.getPositionX(), hoodyAnimation.getPositionY());
+                for(int i = 0; i < 100; i++) {
+                    fireAnimations[i].updateSprite();
+                }
                 if(spawnPowerUp){
                     gemstoneAnimation.updateSprite();
                 }
@@ -180,8 +192,8 @@ int main()
             lives= 3;
             BeginDrawing();
                 DrawTexture(gameScreen, 0, 0, WHITE);
-                DrawText("GAME OVER!", 270, 100, 80, BLACK);
-                DrawText("Press Enter to restart!", 260, 300, 40, BLACK);
+                DrawText("GAME OVER!", 130, 100, 80, BLACK);
+                DrawText("Press Enter to restart!", 100, 300, 40, BLACK);
                 if(IsKeyPressed(KEY_ENTER)){
                     //re initialize all data
                     score = 0;
@@ -194,33 +206,14 @@ int main()
                     enemyAnimation.setPosition((rand() % 540) , (rand() % 360));
                     gemstoneAnimation.setPosition(rand() % 540, rand() % 360);
                     hoodyAnimation.setPlayerSpeed(3.0f);
-                    hoodyAnimation.setPosition(220.0f, 300.0f);
-                    system("cls");
+                    hoodyAnimation.setPosition(220.0f, 300.0f);               
+                    system("cls"); 
                     screen = 0;
                 }
             EndDrawing();
         }
     }
         
-    // UnloadTextures
-    UnloadTexture(squishy);       
-    UnloadTexture(gameScreen);      
-    UnloadTexture(collectable);  
-
-    // Unload animations
-    hoodyAnimation.~Player();
-    gemstoneAnimation.~Animation();
-    enemyAnimation.~Enemy();
-
-    // Unload sounds
-    UnloadMusicStream(music);
-    UnloadSound(sound);
-    UnloadSound(hitSound);
-    UnloadSound(gameOverSound);
-    UnloadSound(powerUpSound);
-    DetachAudioMixedProcessor(ProcessAudio);
-    CloseAudioDevice(); // Close audio device
-
     // Closes window and ends program
     CloseWindow();
 }

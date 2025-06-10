@@ -65,6 +65,10 @@ void Player::drawSprite(){
     DrawTextureRec(*m_currentTexture, m_animationRect, {m_positionX, m_positionY}, WHITE);
 }
 
+void Player::drawAttackHitbox(){
+     DrawRectangleLines(m_attackRect.x, m_attackRect.y, m_attackRect.width, m_attackRect.height, GREEN);
+}
+
 void Player::setState(int newState){
     if (newState != m_currentState) {  // Only change when different
         //std::cout << "setState called\n";
@@ -77,6 +81,17 @@ void Player::setState(int newState){
             case 2: m_currentTexture = &m_animationTextures[1]; break;  // right
             default: m_currentTexture = &m_animationTextures[0]; break; // idle
         }
+    }
+}
+
+void Player::animateSprite(){
+    float deltaTime = GetFrameTime();
+    m_runningTime += deltaTime;
+    if (m_runningTime >= m_updateTime){
+        m_runningTime = 0.0f;
+        m_animationRect.x = (float)m_currentFrame * m_animationRect.width;
+        m_currentFrame++;
+        if (m_currentFrame > m_frameCount) m_currentFrame = 0;
     }
 }
 
@@ -112,28 +127,28 @@ void Player::updateSprite() {
     }
 
 
-    if(IsKeyDown(KEY_RIGHT)){
+    if(IsKeyPressed(KEY_RIGHT)){
         m_attackRect.x = m_positionX + 28.0f; 
         m_attackRect.y = m_positionY + 8.0f;
         m_attackRect.width = 35.0f;
         m_attackRect.height = 15.0f;
         PlaySound(m_swordSlashSound);
     }
-    else if(IsKeyDown(KEY_LEFT)){
+    else if(IsKeyPressed(KEY_LEFT)){
         m_attackRect.x = m_positionX - 28.0f; 
         m_attackRect.y = m_positionY + 8.0f;
         m_attackRect.width = 35.0f; 
         m_attackRect.height = 15.0f; 
         PlaySound(m_swordSlashSound);
     }
-    else if(IsKeyDown(KEY_UP)){
+    else if(IsKeyPressed(KEY_UP)){
         m_attackRect.x = m_positionX + 8.0f; 
         m_attackRect.y = m_positionY - 28.0f;
         m_attackRect.width = 15.0f;
         m_attackRect.height = 35.0f;
         PlaySound(m_swordSlashSound);
     }
-    else if(IsKeyDown(KEY_DOWN)){
+    else if(IsKeyPressed(KEY_DOWN)){
         m_attackRect.x = m_positionX + 8.0f; 
         m_attackRect.y = m_positionY + 28.0f;
         m_attackRect.width = 15.0f; 
@@ -163,12 +178,10 @@ void Player::updateSprite() {
 
 }
 
+//----------------------------------------------//
+
 void Player::setPlayerSpeed(float speed) {
     m_playerSpeed = speed;
-}
-
-void Player::drawAttackHitbox(){
-     DrawRectangleLines(m_attackRect.x, m_attackRect.y, m_attackRect.width, m_attackRect.height, GREEN);
 }
 
 Rectangle Player::getAttackRect() {

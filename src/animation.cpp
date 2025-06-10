@@ -19,7 +19,7 @@ Animation::~Animation(){
 }
 
 // Meat and Potatoes
-Animation::Animation(const char* filePath, int frameCount){
+Animation::Animation(const char* filePath, int frameCount, float positionX, float positionY){
 
     // Load textures
     m_animationTextures[0] = LoadTexture(filePath); 
@@ -35,8 +35,8 @@ Animation::Animation(const char* filePath, int frameCount){
     m_updateTime = 1.0f / 12.0f; 
 
     // position and speed
-    m_positionX = rand() % 540; 
-    m_positionY = rand() % 360; 
+    m_positionX = positionX; 
+    m_positionY = positionY; 
 }
 
 void Animation::animateSprite(){
@@ -46,7 +46,7 @@ void Animation::animateSprite(){
         m_runningTime = 0.0f;
         m_animationRect.x = (float)m_currentFrame * m_animationRect.width;
         m_currentFrame++;
-        if (m_currentFrame > m_frameCount) m_currentFrame = 0;
+        if (m_currentFrame > m_frameCount) m_currentFrame = rand() % m_frameCount; 
     }
 }
 

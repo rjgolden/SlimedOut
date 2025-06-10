@@ -23,6 +23,7 @@ class Enemy : public Animation {
         void setHealth(int health);
         void takeDamage(float damage);
 
+        void animateSprite();
         void drawHealthBar();
         void drawHurtFrame();
         void updateSprite();

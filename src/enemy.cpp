@@ -77,6 +77,17 @@ Enemy::Enemy(const char* filePath, const char* filePath2, const char* filePath3,
     m_health = 100;
 }
 
+void Enemy::animateSprite(){
+    float deltaTime = GetFrameTime();
+    m_runningTime += deltaTime;
+    if (m_runningTime >= m_updateTime){
+        m_runningTime = 0.0f;
+        m_animationRect.x = (float)m_currentFrame * m_animationRect.width;
+        m_currentFrame++;
+        if (m_currentFrame > m_frameCount) m_currentFrame = 0;
+    }
+}
+
 void Enemy::chasePlayer(float playerX, float playerY){
     float dx = playerX - m_positionX;
     float dy = playerY - m_positionY;

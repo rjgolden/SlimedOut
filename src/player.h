@@ -19,6 +19,7 @@ class Player: public Animation {
         Player();
         ~Player();
 
+        void animateSprite();
         void drawSprite();
         void drawAttackHitbox();
         void updateSprite();

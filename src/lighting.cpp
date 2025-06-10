@@ -2,7 +2,6 @@
 #include <raymath.h>
 #include <math.h>
 #include <iostream>
-#include "player.h"
 
 // Constants
 //--------------------------------------------------------------------------------------
@@ -28,7 +27,6 @@ int main(void){
 
     SetTargetFPS(60);         // Set our game framerate
     //--------------------------------------------------------------------------------------
-    Player hoodyAnimation("src/resources/hoodyIdleAnimation.png", "src/resources/hoodyRunAnimation.png", "src/resources/hoodyRunAnimation2.png", 6);
     // Main game loop
     while (!WindowShouldClose()) {
         // Update
@@ -87,7 +85,6 @@ int main(void){
 
         PixRect(mouseX, mouseY, 1, 1, BLUE);
         PixRect(RX, RY, RW, RH, RED);
-        hoodyAnimation.updateSprite();
 
         DrawText(TextFormat("FPS: %02f", fps), 10, 10, 20, WHITE);  
         EndDrawing();

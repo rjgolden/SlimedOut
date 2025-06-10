@@ -17,7 +17,7 @@ class Animation {
         float m_positionY; 
 
     public: 
-        Animation(const char* filePath, int frameCount);
+        Animation(const char* filePath, int frameCount, float positionX, float positionY);
         Animation();
         ~Animation();
         

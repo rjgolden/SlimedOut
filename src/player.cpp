@@ -202,14 +202,6 @@ void Player::takeDamage(int damage) {
     }
 }
 
-int Player::getHealth() {
-    return m_playerHealth;
-}  
-
-void Player::setHealth(int health) {
-    m_playerHealth = health;
-}
-
 //----------------------------------------------//
 
 void Player::setPlayerSpeed(float speed) {
@@ -218,4 +210,12 @@ void Player::setPlayerSpeed(float speed) {
 
 Rectangle Player::getAttackRect() {
     return m_attackRect;
+}
+
+int Player::getHealth() {
+    return m_playerHealth;
+}  
+
+void Player::setHealth(int health) {
+    m_playerHealth = health;
 }

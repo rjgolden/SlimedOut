@@ -77,17 +77,6 @@ Enemy::Enemy(const char* filePath, const char* filePath2, const char* filePath3,
     m_health = 100;
 }
 
-void Enemy::animateSprite(){
-    float deltaTime = GetFrameTime();
-    m_runningTime += deltaTime;
-    if (m_runningTime >= m_updateTime){
-        m_runningTime = 0.0f;
-        m_animationRect.x = (float)m_currentFrame * m_animationRect.width;
-        m_currentFrame++;
-        if (m_currentFrame > m_frameCount) m_currentFrame = 0;
-    }
-}
-
 void Enemy::chasePlayer(float playerX, float playerY){
     float dx = playerX - m_positionX;
     float dy = playerY - m_positionY;
@@ -100,23 +89,22 @@ void Enemy::chasePlayer(float playerX, float playerY){
     m_positionY += dy * m_enemySpeed;
 }
 
-void Enemy::setEnemySpeed(float speed){
-    m_enemySpeed = speed;
-}
-
-int Enemy::getHealth() {
-    return m_health;
-}  
-
-void Enemy::setHealth(int health) {
-    m_health = health;
-}
-
 void Enemy::takeDamage(int damage) {
     m_hurtFrameActive = true; // Activate hurt frame
     m_health -= damage;
     if (m_health < 0) {
         m_health = 0; // Prevent negative health
+    }
+}
+
+void Enemy::animateSprite(){
+    float deltaTime = GetFrameTime();
+    m_runningTime += deltaTime;
+    if (m_runningTime >= m_updateTime){
+        m_runningTime = 0.0f;
+        m_animationRect.x = (float)m_currentFrame * m_animationRect.width;
+        m_currentFrame++;
+        if (m_currentFrame > m_frameCount) m_currentFrame = 0;
     }
 }
 
@@ -131,6 +119,10 @@ void Enemy::drawHealthBar(){
     DrawRectangle(m_healthBarRect.x, m_healthBarRect.y, healthWidth, m_healthBarRect.height, RED);
     DrawRectangleLines(m_healthBarRect.x, m_healthBarRect.y, m_healthBarRect.width, m_healthBarRect.height, BLACK);
     
+}
+
+void Enemy::drawHurtFrame() {
+    DrawTexture(m_enemyHurt, m_positionX, m_positionY, WHITE);
 }
 
 void Enemy::updateSprite(){
@@ -148,6 +140,17 @@ void Enemy::updateSprite(){
     drawHealthBar();
 }
     
-void Enemy::drawHurtFrame() {
-    DrawTexture(m_enemyHurt, m_positionX, m_positionY, WHITE);
+//----------------------------------------------//
+
+int Enemy::getHealth() {
+    return m_health;
+}  
+
+void Enemy::setHealth(int health) {
+    m_health = health;
 }
+
+void Enemy::setEnemySpeed(float speed){
+    m_enemySpeed = speed;
+}
+

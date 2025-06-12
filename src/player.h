@@ -4,16 +4,20 @@
 class Player: public Animation {
 
     private:
+        //player variables
         float m_playerSpeed; 
         int m_playerHealth;
         bool m_hurtFrameActive; // Need to implement this
-        Rectangle m_healthBarRect; 
+    
+        // frame variables
         bool m_idle; 
         unsigned m_direction; 
         unsigned m_lastDirection;
         Texture2D* m_currentTexture;  // Pointer to current texture
         int m_currentState;// Track current state of textures 
 
+        // extra variables
+        Rectangle m_healthBarRect; 
         Rectangle m_attackRect;
         Sound m_swordSlashSound;
 
@@ -22,16 +26,17 @@ class Player: public Animation {
         Player();
         ~Player();
 
-        void animateSprite();
         void drawSprite();
         void drawAttackHitbox();
+        void setState(int newState);
+        void animateSprite();
+        void updateSprite();
         void drawHealthBar();
         void takeDamage(int damage);
-        void setHealth(int health);
-        int getHealth();
-        void updateSprite();
-        void setPlayerSpeed(float speed);
-        void setState(int newState);
-        Rectangle getAttackRect();
 
+        //getters and setters
+        Rectangle getAttackRect();
+        int getHealth();
+        void setPlayerSpeed(float speed);
+        void setHealth(int health);
 };

@@ -4,7 +4,10 @@
 class Enemy : public Animation {
 
     private:
+        // enemy variables
         float m_enemySpeed;
+
+        // health stuff
         float m_health;
         Rectangle m_healthBarRect; 
         Texture2D m_enemyHurt;
@@ -17,15 +20,15 @@ class Enemy : public Animation {
         ~Enemy();
 
         void chasePlayer(float playerX, float playerY);
- 
-        int getHealth();
-        void setEnemySpeed(float speed);
-        void setHealth(int health);
         void takeDamage(int damage);
-
         void animateSprite();
         void drawHealthBar();
         void drawHurtFrame();
         void updateSprite();
+
+        //getters and setters
+        int getHealth();
+        void setHealth(int health);
+        void setEnemySpeed(float speed);
 
 };

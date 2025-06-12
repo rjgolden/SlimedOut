@@ -13,18 +13,32 @@ int main()
     SetWindowMinSize(640, 360);
     SetTargetFPS(60);
     SetWindowIcon(LoadImage("src/resources/powerUp.png"));
+
     // Audio setup
     SoundSystem soundSystem; // Initialize sound system
     InitAudioDevice();
     AttachAudioMixedProcessor(SoundSystem::ProcessAudio); // Attach audio processor
-    Music music = LoadMusicStream("src/resources/03-ye-the_heil_symphony.mp3");
-    Sound sound = LoadSound("src/resources/coin-pickup-98269.mp3");
+
+    // Load music and sounds
+    Sound collectableSound = LoadSound("src/resources/coin-pickup-98269.mp3");
     Sound hitSound = LoadSound("src/resources/hitSound.mp3");
     Sound gameOverSound = LoadSound("src/resources/gameOverSound.mp3"); 
     Sound powerUpSound = LoadSound("src/resources/powerUpSound.mp3");
     Sound enemyHurtSound = LoadSound("src/resources/enemyHurtSound.mp3");
     Sound enemyHurtSound2 = LoadSound("src/resources/enemyHurtSound.mp3");
+    //Music music = LoadMusicStream("src/resources/03-ye-the_heil_symphony.mp3");
     //PlayMusicStream(music);
+    
+    // Load all textures        
+    Texture2D gameScreen = LoadTexture("src/resources/gameScreen.png"); 
+    Texture2D collectable = LoadTexture("src/resources/collectable.png");
+    Texture2D building = LoadTexture("src/resources/building.png");     
+
+    // Load animations
+    Player hoodyAnimation("src/resources/hoodyIdleAnimation.png", "src/resources/hoodyRunAnimation.png", "src/resources/hoodyRunAnimation2.png", 6);
+    Animation gemstoneAnimation("src/resources/hoodyGemAnimation.png", 6, 500.0f, 500.0f);
+    Animation fireAnimation("src/resources/fireSpriteAnimation.png", 6, rand() % 540, rand() % 360);
+    Enemy enemyAnimation("src/resources/hoodyGuyEnemyAnimation.png", 6);
 
     // Game flow variables
     int screen = 0;
@@ -40,29 +54,12 @@ int main()
     bool spawnPowerUp = false;
     bool powerUpSpawned = false;
 
-    // Load all textures        
-    Texture2D gameScreen = LoadTexture("src/resources/gameScreen.png"); 
-    Texture2D collectable = LoadTexture("src/resources/collectable.png");
-    //Texture2D building = LoadTexture("src/resources/building.png");     
-
     // Create hit boxes for player and collectables
     Rectangle collectableRect = {collectableX, collectableY, (float)collectable.width, (float)collectable.height};
-
-    // Load animations
-    Player hoodyAnimation("src/resources/hoodyIdleAnimation.png", "src/resources/hoodyRunAnimation.png", "src/resources/hoodyRunAnimation2.png", 6);
-    Animation gemstoneAnimation("src/resources/hoodyGemAnimation.png", 6, 500.0f, 500.0f);
-
-
-
-    Animation fireAnimation("src/resources/fireSpriteAnimation.png", 6, rand() % 540, rand() % 360);
-    
-    Enemy enemyAnimation("src/resources/hoodyGuyEnemyAnimation.png", 6);
-    system("cls");
 
     // Main Game Loop
     while (!WindowShouldClose())
     {   
-        UpdateMusicStream(music);   // Update music buffer with new stream data
 
         if(screen == 0){ // splash screen 
             BeginDrawing();
@@ -74,11 +71,10 @@ int main()
         }
 
         else if (screen == 1){ // game screen
-            // Update hit boxes for player and collectables
+
+            //UpdateMusicStream(music);   // Update music buffer with new stream data
             collectableRect.x = (float)collectableX;
             collectableRect.y = (float)collectableY;
-
-            if(IsKeyPressed(KEY_F)) ToggleFullscreen();   
 
             if(score >= 5 && !powerUpSpawned){
                 spawnPowerUp = true;
@@ -89,7 +85,7 @@ int main()
 
             if(CheckCollisionRecs(hoodyAnimation.getHitboxRect(), collectableRect)){
                 system("cls");
-                PlaySound(sound);
+                PlaySound(collectableSound);
                 score++;
                 std::cout << "Score: " << score << "\n";
                 collectableX = rand() % 540; 
@@ -115,11 +111,9 @@ int main()
 
             if(CheckCollisionRecs(hoodyAnimation.getAttackRect(),  enemyAnimation.getHitboxRect())){
                 system("cls");
-
                 int randomSound = rand() % 2; // Randomly choose between two sounds
                 if(randomSound == 0) {PlaySound(enemyHurtSound);}
                 else {PlaySound(enemyHurtSound2);}
-
                 enemyAnimation.takeDamage(5); 
                 std::cout << "Enemies health: " << enemyAnimation.getHealth() << "\n"; 
                 if(enemyAnimation.getHealth() <= 0){
@@ -140,7 +134,7 @@ int main()
                 hoodyAnimation.updateSprite();
                 enemyAnimation.updateSprite();
                 DrawTexture(collectable, collectableX, collectableY, WHITE);
-                //DrawTexture(building, 100.0f, 0.0f, WHITE);
+                DrawTexture(building, 100.0f, 0.0f, WHITE);
                 enemyAnimation.chasePlayer(hoodyAnimation.getPositionX(), hoodyAnimation.getPositionY());
                 fireAnimation.updateSprite();
                 if(spawnPowerUp){

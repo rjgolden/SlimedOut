@@ -1,41 +1,9 @@
 #include <raylib.h>
-#include <cstdlib>
 #include <iostream> 
-#include <ctime>
-#include <cmath>
-#include <vector>
 #include "animation.h"
 #include "player.h"
 #include "enemy.h"
-
-static float exponent = 1.0f;                 // Audio exponentiation value
-static float averageVolume[400] = { 0.0f };   // Average volume history
-static float volume = 0.5f;  // Volume multiplier (0.0 = mute, 1.0 = original volume)
-
-void ProcessAudio(void *buffer, unsigned int frames)
-{
-    float *samples = (float *)buffer;
-    float average = 0.0f;
-
-    for (unsigned int frame = 0; frame < frames; frame++)
-    {
-        float *left = &samples[frame * 2 + 0];
-        float *right = &samples[frame * 2 + 1];
-
-        // Apply distortion
-        *left = powf(fabsf(*left), exponent) * ((*left < 0.0f) ? -1.0f : 1.0f);
-        *right = powf(fabsf(*right), exponent) * ((*right < 0.0f) ? -1.0f : 1.0f);
-
-        // Apply fixed volume scaling
-        *left *= volume;
-        *right *= volume;
-
-        average += (fabsf(*left) + fabsf(*right)) / frames;
-    }
-
-    for (int i = 0; i < 399; i++) averageVolume[i] = averageVolume[i + 1];
-    averageVolume[399] = average;
-}
+#include "soundSystem.h"
 
 int main()
 {   
@@ -45,10 +13,10 @@ int main()
     SetWindowMinSize(640, 360);
     SetTargetFPS(60);
     SetWindowIcon(LoadImage("src/resources/powerUp.png"));
-
     // Audio setup
+    SoundSystem soundSystem; // Initialize sound system
     InitAudioDevice();
-    AttachAudioMixedProcessor(ProcessAudio);
+    AttachAudioMixedProcessor(SoundSystem::ProcessAudio); // Attach audio processor
     Music music = LoadMusicStream("src/resources/03-ye-the_heil_symphony.mp3");
     Sound sound = LoadSound("src/resources/coin-pickup-98269.mp3");
     Sound hitSound = LoadSound("src/resources/hitSound.mp3");
@@ -61,7 +29,6 @@ int main()
     // Game flow variables
     int screen = 0;
     int score = 0;
-    int lives = 3;
     int enemiesKilled = 0;
 
     // Random spaces for collectables
@@ -76,7 +43,7 @@ int main()
     // Load all textures        
     Texture2D gameScreen = LoadTexture("src/resources/gameScreen.png"); 
     Texture2D collectable = LoadTexture("src/resources/collectable.png");
-    Texture2D building = LoadTexture("src/resources/building.png");     
+    //Texture2D building = LoadTexture("src/resources/building.png");     
 
     // Create hit boxes for player and collectables
     Rectangle collectableRect = {collectableX, collectableY, (float)collectable.width, (float)collectable.height};
@@ -86,12 +53,9 @@ int main()
     Animation gemstoneAnimation("src/resources/hoodyGemAnimation.png", 6, 500.0f, 500.0f);
 
 
+
+    Animation fireAnimation("src/resources/fireSpriteAnimation.png", 6, rand() % 540, rand() % 360);
     
-    std::vector<Animation> fireAnimations;
-    fireAnimations.reserve(100);
-    for (int i = 0; i < 100; i++) {
-        fireAnimations.emplace_back("src/resources/fireSpriteAnimation.png", 6, rand() % 540, rand() % 360);
-    }
     Enemy enemyAnimation("src/resources/hoodyGuyEnemyAnimation.png", 6);
     system("cls");
 
@@ -135,8 +99,8 @@ int main()
             if(CheckCollisionRecs(hoodyAnimation.getHitboxRect(), enemyAnimation.getHitboxRect())){
                 system("cls");
                 PlaySound(hitSound);
-                lives-=1;
-                std::cout << "Lives: " << lives << "\n";
+                hoodyAnimation.takeDamage(5);
+                std::cout << "Current Health: " << hoodyAnimation.getHealth() << "\n";
                 enemyAnimation.setPosition(hoodyAnimation.getPositionX() + (rand() % 540), hoodyAnimation.getPositionY() + (rand() % 360));
             }   
 
@@ -156,7 +120,7 @@ int main()
                 if(randomSound == 0) {PlaySound(enemyHurtSound);}
                 else {PlaySound(enemyHurtSound2);}
 
-                enemyAnimation.takeDamage(5.0f); 
+                enemyAnimation.takeDamage(5); 
                 std::cout << "Enemies health: " << enemyAnimation.getHealth() << "\n"; 
                 if(enemyAnimation.getHealth() <= 0){
                     std::cout << "Enemies killed: " << ++enemiesKilled << "\n"; 
@@ -165,7 +129,7 @@ int main()
                 }
             }  
 
-            if(lives == 0){
+            if(hoodyAnimation.getHealth() == 0){
                 screen = 2;
             }
 
@@ -173,15 +137,12 @@ int main()
                 DrawTexture(gameScreen, 0, 0, WHITE);
                 DrawText(TextFormat("Score: %02i", score), 300, 30, 40, BLACK);
                 DrawText(TextFormat("Time Elapsed: %02f", GetTime()), 200, 10, 20, BLACK);
-                DrawText(TextFormat("Lives: %i", lives), 400, 440, 40, BLACK);
                 hoodyAnimation.updateSprite();
                 enemyAnimation.updateSprite();
                 DrawTexture(collectable, collectableX, collectableY, WHITE);
-                DrawTexture(building, 100.0f, 0.0f, WHITE);
+                //DrawTexture(building, 100.0f, 0.0f, WHITE);
                 enemyAnimation.chasePlayer(hoodyAnimation.getPositionX(), hoodyAnimation.getPositionY());
-                for(int i = 0; i < 100; i++) {
-                    fireAnimations[i].updateSprite();
-                }
+                fireAnimation.updateSprite();
                 if(spawnPowerUp){
                     gemstoneAnimation.updateSprite();
                 }
@@ -190,8 +151,6 @@ int main()
 
         else if(screen == 2){ // game over screen 
             PlaySound(gameOverSound);
-            if(lives == 0) std::cout << "You fuckin suck! Try again loser...\n";
-            lives= 3;
             BeginDrawing();
                 DrawTexture(gameScreen, 0, 0, WHITE);
                 DrawText("GAME OVER!", 130, 100, 80, BLACK);
@@ -200,7 +159,6 @@ int main()
                     //re initialize all data
                     score = 0;
                     enemyAnimation.setEnemySpeed(2.0f);
-                    lives = 3;
                     spawnPowerUp = false;
                     powerUpSpawned = false;
                     collectableX = rand() % 540; 
@@ -208,7 +166,8 @@ int main()
                     enemyAnimation.setPosition((rand() % 540) , (rand() % 360));
                     gemstoneAnimation.setPosition(rand() % 540, rand() % 360);
                     hoodyAnimation.setPlayerSpeed(3.0f);
-                    hoodyAnimation.setPosition(220.0f, 300.0f);               
+                    hoodyAnimation.setPosition(220.0f, 300.0f);     
+                    hoodyAnimation.setHealth(100);          
                     system("cls"); 
                     screen = 0;
                 }

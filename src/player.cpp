@@ -9,6 +9,7 @@ Player::Player(){
 
     m_animationRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height };
     m_hitboxRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height };
+    m_healthBarRect = { 540.0f, 330.0f, 100.0f, 20.f }; 
 
     m_currentFrame = 0; // Starting frame
     m_frameCount = 6; // Number of frames in the idle animation
@@ -17,6 +18,7 @@ Player::Player(){
     m_idle = true;
     m_direction = 0;
     m_lastDirection = 0;
+    m_playerHealth = 100;
 
     // position and speed
     m_positionX = rand() % 540;
@@ -34,22 +36,23 @@ Player::~Player() {
 
 // meat and potatoes
 Player::Player(const char* filePath, const char* filePath2, const char* filePath3, int frameCount) {
-    // Load textures
     m_animationTextures[0] = LoadTexture(filePath); 
     m_animationTextures[1] = LoadTexture(filePath2);
     m_animationTextures[2] = LoadTexture(filePath3);
-    m_currentTexture = &m_animationTextures[0]; // idle
+    m_currentTexture = &m_animationTextures[0]; // default is idle
     m_swordSlashSound = LoadSound("src/resources/swordSlash.mp3");
 
     // Rectangles 
     m_animationRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height }; 
     m_hitboxRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height };
+    m_healthBarRect = { 540.0f, 330.0f, 100.0f, 20.f }; 
 
     // frame stuff
-    m_currentFrame = 0; // Starting frame
-    m_frameCount = frameCount; // Number of frames in the idle animation
+    m_currentFrame = 0; // 0 default frame
+    m_frameCount = frameCount;
     m_runningTime = 0.0f; 
     m_updateTime = 1.0f / 12.0f; 
+    m_playerHealth = 100;
 
     // position and speed
     m_positionX = rand() % 540; 
@@ -175,7 +178,36 @@ void Player::updateSprite() {
     //---------------//
     drawHitbox();
     drawAttackHitbox();
+    drawHealthBar();
 
+}
+
+void Player::drawHealthBar(){
+    // Draw background
+    DrawRectangle(m_healthBarRect.x, m_healthBarRect.y, m_healthBarRect.width, m_healthBarRect.height, GRAY);
+    
+    // Calculate health bar width based on current health
+    float healthWidth = (m_playerHealth / 100.0f) * m_healthBarRect.width;
+    
+    // Draw health bar
+    DrawRectangle(m_healthBarRect.x, m_healthBarRect.y, healthWidth, m_healthBarRect.height, GREEN);
+    DrawRectangleLines(m_healthBarRect.x, m_healthBarRect.y, m_healthBarRect.width, m_healthBarRect.height, BLACK);
+}
+
+void Player::takeDamage(int damage) {
+    m_hurtFrameActive = true; // Activate hurt frame
+    m_playerHealth -= damage;
+    if (m_playerHealth < 0) {
+        m_playerHealth = 0; // Prevent negative health
+    }
+}
+
+int Player::getHealth() {
+    return m_playerHealth;
+}  
+
+void Player::setHealth(int health) {
+    m_playerHealth = health;
 }
 
 //----------------------------------------------//

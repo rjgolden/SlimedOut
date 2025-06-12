@@ -112,7 +112,7 @@ void Enemy::setHealth(int health) {
     m_health = health;
 }
 
-void Enemy::takeDamage(float damage) {
+void Enemy::takeDamage(int damage) {
     m_hurtFrameActive = true; // Activate hurt frame
     m_health -= damage;
     if (m_health < 0) {

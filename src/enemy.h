@@ -21,7 +21,7 @@ class Enemy : public Animation {
         int getHealth();
         void setEnemySpeed(float speed);
         void setHealth(int health);
-        void takeDamage(float damage);
+        void takeDamage(int damage);
 
         void animateSprite();
         void drawHealthBar();

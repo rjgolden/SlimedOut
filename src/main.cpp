@@ -13,7 +13,8 @@ int main()
     SetWindowMinSize(640, 360);
     SetTargetFPS(60);
     SetWindowIcon(LoadImage("src/resources/powerUp.png"));
-
+    HideCursor();                               
+ 
     // Audio setup
     SoundSystem soundSystem; // Initialize sound system
     InitAudioDevice();
@@ -44,6 +45,11 @@ int main()
     int screen = 0;
     int score = 0;
     int enemiesKilled = 0;
+    bool paused = false;
+    bool fullscreen = false;
+    float gameTime = 0.0f;
+    float scale = 1.0f;
+
 
     // Random spaces for collectables
     srand(time(0));
@@ -71,75 +77,111 @@ int main()
         }
 
         else if (screen == 1){ // game screen
-
-            //UpdateMusicStream(music);   // Update music buffer with new stream data
-            collectableRect.x = (float)collectableX;
-            collectableRect.y = (float)collectableY;
-
-            if(score >= 5 && !powerUpSpawned){
-                spawnPowerUp = true;
-                gemstoneAnimation.setPosition(rand() % 540, rand() % 360);
-                powerUpSpawned = true;
-                enemyAnimation.setEnemySpeed(5.0f);
+            if(IsKeyPressed(KEY_P)) {
+                paused = !paused; // Toggle pause state
             }
+            if(!paused) {
+                //UpdateMusicStream(music);   // Update music buffer with new stream data
+                collectableRect.x = (float)collectableX;
+                collectableRect.y = (float)collectableY;
 
-            if(CheckCollisionRecs(hoodyAnimation.getHitboxRect(), collectableRect)){
-                system("cls");
-                PlaySound(collectableSound);
-                score++;
-                std::cout << "Score: " << score << "\n";
-                collectableX = rand() % 540; 
-                collectableY = rand() % 360;
-            }   
-
-            if(CheckCollisionRecs(hoodyAnimation.getHitboxRect(), enemyAnimation.getHitboxRect())){
-                system("cls");
-                PlaySound(hitSound);
-                hoodyAnimation.takeDamage(5);
-                std::cout << "Current Health: " << hoodyAnimation.getHealth() << "\n";
-                enemyAnimation.setPosition(hoodyAnimation.getPositionX() + (rand() % 540), hoodyAnimation.getPositionY() + (rand() % 360));
-            }   
-
-            if(CheckCollisionRecs(hoodyAnimation.getHitboxRect(), gemstoneAnimation.getHitboxRect()) && spawnPowerUp){
-                system("cls");
-                PlaySound(powerUpSound);
-                std::cout << "Speed Up Collected! Speed: \n";
-                hoodyAnimation.setPlayerSpeed(7.0f);
-                gemstoneAnimation.setPosition(rand() % 540, rand() % 360);
-                spawnPowerUp = false;
-            }  
-
-            if(CheckCollisionRecs(hoodyAnimation.getAttackRect(),  enemyAnimation.getHitboxRect())){
-                system("cls");
-                int randomSound = rand() % 2; // Randomly choose between two sounds
-                if(randomSound == 0) {PlaySound(enemyHurtSound);}
-                else {PlaySound(enemyHurtSound2);}
-                enemyAnimation.takeDamage(5); 
-                std::cout << "Enemies health: " << enemyAnimation.getHealth() << "\n"; 
-                if(enemyAnimation.getHealth() <= 0){
-                    std::cout << "Enemies killed: " << ++enemiesKilled << "\n"; 
-                    enemyAnimation.setHealth(100); // Reset enemy health
-                    enemyAnimation.setPosition(rand() % 540, rand() % 360); // Respawn enemy at random position
+                if(score >= 5 && !powerUpSpawned){
+                    spawnPowerUp = true;
+                    gemstoneAnimation.setPosition(rand() % 540, rand() % 360);
+                    powerUpSpawned = true;
+                    enemyAnimation.setEnemySpeed(5.0f);
                 }
-            }  
 
-            if(hoodyAnimation.getHealth() == 0){
-                screen = 2;
+                if(CheckCollisionRecs(hoodyAnimation.getHitboxRect(), collectableRect)){
+                    system("cls");
+                    PlaySound(collectableSound);
+                    score++;
+                    std::cout << "Score: " << score << "\n";
+                    collectableX = rand() % 540; 
+                    collectableY = rand() % 360;
+                }   
+
+                if(CheckCollisionRecs(hoodyAnimation.getHitboxRect(), enemyAnimation.getHitboxRect())){
+                    system("cls");
+                    PlaySound(hitSound);
+                    hoodyAnimation.takeDamage(5);
+                    std::cout << "Current Health: " << hoodyAnimation.getHealth() << "\n";
+                    enemyAnimation.setPosition(hoodyAnimation.getPositionX() + (rand() % 540), hoodyAnimation.getPositionY() + (rand() % 360));
+                }   
+
+                if(CheckCollisionRecs(hoodyAnimation.getHitboxRect(), gemstoneAnimation.getHitboxRect()) && spawnPowerUp){
+                    system("cls");
+                    PlaySound(powerUpSound);
+                    std::cout << "Speed Up Collected! Speed: \n";
+                    hoodyAnimation.setPlayerSpeed(7.0f);
+                    gemstoneAnimation.setPosition(rand() % 540, rand() % 360);
+                    spawnPowerUp = false;
+                }  
+
+                if(CheckCollisionRecs(hoodyAnimation.getAttackRect(),  enemyAnimation.getHitboxRect())){
+                    system("cls");
+                    int randomSound = rand() % 2; // Randomly choose between two sounds
+                    if(randomSound == 0) {PlaySound(enemyHurtSound);}
+                    else {PlaySound(enemyHurtSound2);}
+                    enemyAnimation.takeDamage(5); 
+                    std::cout << "Enemies health: " << enemyAnimation.getHealth() << "\n"; 
+                    if(enemyAnimation.getHealth() <= 0){
+                        std::cout << "Enemies killed: " << ++enemiesKilled << "\n"; 
+                        enemyAnimation.setHealth(100); // Reset enemy health
+                        enemyAnimation.setPosition(rand() % 540, rand() % 360); // Respawn enemy at random position
+                    }
+                }  
+
+                if(hoodyAnimation.getHealth() == 0){
+                    screen = 2;
+                }
             }
-
             BeginDrawing();
-                DrawTexture(gameScreen, 0, 0, WHITE);
-                DrawText(TextFormat("Score: %02i", score), 300, 30, 40, BLACK);
-                DrawText(TextFormat("Time Elapsed: %02f", GetTime()), 200, 10, 20, BLACK);
-                hoodyAnimation.updateSprite();
-                enemyAnimation.updateSprite();
+
+                DrawTextureEx(gameScreen, {0.0f,0.0f}, 0.0f, scale, WHITE);
+                DrawText(TextFormat("Score: %02i", score), 200, 30, 40, BLACK);
+                DrawText(TextFormat("Time Elapsed: %02f", gameTime), 200, 10, 20, BLACK);
                 DrawTexture(collectable, collectableX, collectableY, WHITE);
-                DrawTexture(building, 100.0f, 0.0f, WHITE);
-                enemyAnimation.chasePlayer(hoodyAnimation.getPositionX(), hoodyAnimation.getPositionY());
-                fireAnimation.updateSprite();
-                if(spawnPowerUp){
-                    gemstoneAnimation.updateSprite();
+                DrawTexture(building, 0.0f, 160.0f, WHITE);
+                if(IsKeyPressed(KEY_F)) {
+                    fullscreen = !fullscreen;
+                    if(fullscreen){
+                        SetWindowPosition(0, 0);
+                        SetWindowSize(GetMonitorWidth(0), GetMonitorHeight(0));
+                        scale = 3.0f;
+                    }
+                    else{
+                        SetWindowPosition(GetMonitorWidth(0)/3, GetMonitorHeight(0)/3);
+                        SetWindowSize(640, 360);
+                        scale = 1.0f;
+                    }
                 }
+                if(paused){
+                    ShowCursor(); // Show cursor when paused
+                    hoodyAnimation.drawSprite();
+                    hoodyAnimation.drawHealthBar();
+                    enemyAnimation.drawSprite();
+                    enemyAnimation.drawHealthBar();
+                    fireAnimation.drawSprite();
+                    if(spawnPowerUp){
+                        gemstoneAnimation.drawSprite();
+                    }
+                    DrawText("Game Paused", 200, 150, 40, RED);
+                    DrawText("Press P to resume", 220, 200, 20, RED);
+                }
+
+                else{
+                    HideCursor(); // Hide cursor when not paused
+                    gameTime = GetTime();
+                    hoodyAnimation.updateSprite();
+                    enemyAnimation.updateSprite();
+                    fireAnimation.updateSprite();
+                    enemyAnimation.chasePlayer(hoodyAnimation.getPositionX(), hoodyAnimation.getPositionY());
+                    if(spawnPowerUp){
+                    gemstoneAnimation.updateSprite();
+                    }
+                }
+
             EndDrawing();
         }
 

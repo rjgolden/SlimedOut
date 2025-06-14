@@ -110,7 +110,7 @@ void Player::updateSprite() {
     //---------------//
     if (IsKeyDown(KEY_D)){ 
         m_idle = false;
-        m_direction = 2; 
+        m_direction = 2;
         m_positionX += m_playerSpeed;
     }
     else if (IsKeyDown(KEY_A)) {

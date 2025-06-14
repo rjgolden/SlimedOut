@@ -5,7 +5,7 @@
 class Animation {
 
     protected:
-        Texture2D m_animationTextures[3]; // Textures for the animation (idle and moving left and right for now)
+        Texture2D m_animationTextures[5]; // Textures for the animation (idle and moving left and right for now)
         Rectangle m_animationRect; // Source rectangle for the animation
         Rectangle m_hitboxRect; // Hitbox for the animation
 

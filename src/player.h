@@ -23,6 +23,7 @@ class Player: public Animation {
 
     public:
         Player(const char* filePath, const char* filePath2, const char* filePath3, int frameCount);
+        Player(const char* filePath, const char* filePath2, const char* filePath3, const char* filePath4, const char* filePath5, int frameCount);
         Player();
         ~Player();
 
@@ -33,6 +34,7 @@ class Player: public Animation {
         void updateSprite();
         void drawHealthBar();
         void takeDamage(int damage);
+        bool isAnimationComplete();
 
         //getters and setters
         Rectangle getAttackRect();

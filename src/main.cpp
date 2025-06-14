@@ -9,10 +9,10 @@ int main()
 {   
     // Screen setup
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-    InitWindow(640, 360, "Texture Test");
+    InitWindow(640, 360, "Tower Defense Game");
     SetWindowMinSize(640, 360);
     SetTargetFPS(60);
-    SetWindowIcon(LoadImage("src/resources/powerUp.png"));
+    SetWindowIcon(LoadImage("src/resources/building.png"));
     HideCursor();                               
  
     // Audio setup
@@ -36,10 +36,15 @@ int main()
     Texture2D building = LoadTexture("src/resources/building.png");     
 
     // Load animations
-    Player hoodyAnimation("src/resources/hoodyIdleAnimation.png", "src/resources/hoodyRunAnimation.png", "src/resources/hoodyRunAnimation2.png", 6);
+    //Player hoodyAnimation("src/resources/hoodyIdleAnimation.png", "src/resources/hoodyRunAnimation.png", "src/resources/hoodyRunAnimation2.png", 6);
     Animation gemstoneAnimation("src/resources/hoodyGemAnimation.png", 6, 500.0f, 500.0f);
     Animation fireAnimation("src/resources/fireSpriteAnimation.png", 6, rand() % 540, rand() % 360);
     Enemy enemyAnimation("src/resources/hoodyGuyEnemyAnimation.png", 6);
+    Player captainAnimation("src/resources/Captain-Idle-Sheet.png", 
+                            "src/resources/Captain-RunRight-Sheet.png", 
+                            "src/resources/Captain-RunLeft-Sheet.png", 
+                            "src/resources/Captain-AttackLeft-Sheet.png", 
+                            "src/resources/Captain-AttackRight-Sheet.png", 10);
 
     // Game flow variables
     int screen = 0;
@@ -70,8 +75,8 @@ int main()
         if(screen == 0){ // splash screen 
             BeginDrawing();
                 DrawTexture(gameScreen, 0, 0, WHITE);
-                DrawText("Texture Test", 50, 100, 80, BLACK);
-                DrawText("Press Enter to Start", 100, 300, 40, BLACK);
+                DrawText("Tower Defense: Roguelike", 37, 100, 80, BLACK);
+                DrawText("Press Enter to Start", 100, 250, 40, BLACK);
                 if(IsKeyPressed(KEY_ENTER)) screen = 1;
             EndDrawing();
         }
@@ -92,7 +97,7 @@ int main()
                     enemyAnimation.setEnemySpeed(5.0f);
                 }
 
-                if(CheckCollisionRecs(hoodyAnimation.getHitboxRect(), collectableRect)){
+                if(CheckCollisionRecs(captainAnimation.getHitboxRect(), collectableRect)){
                     system("cls");
                     PlaySound(collectableSound);
                     score++;
@@ -101,24 +106,24 @@ int main()
                     collectableY = rand() % 360;
                 }   
 
-                if(CheckCollisionRecs(hoodyAnimation.getHitboxRect(), enemyAnimation.getHitboxRect())){
+                if(CheckCollisionRecs(captainAnimation.getHitboxRect(), enemyAnimation.getHitboxRect())){
                     system("cls");
                     PlaySound(hitSound);
-                    hoodyAnimation.takeDamage(5);
-                    std::cout << "Current Health: " << hoodyAnimation.getHealth() << "\n";
-                    enemyAnimation.setPosition(hoodyAnimation.getPositionX() + (rand() % 540), hoodyAnimation.getPositionY() + (rand() % 360));
+                    captainAnimation.takeDamage(5);
+                    std::cout << "Current Health: " << captainAnimation.getHealth() << "\n";
+                    enemyAnimation.setPosition(captainAnimation.getPositionX() + (rand() % 540), captainAnimation.getPositionY() + (rand() % 360));
                 }   
 
-                if(CheckCollisionRecs(hoodyAnimation.getHitboxRect(), gemstoneAnimation.getHitboxRect()) && spawnPowerUp){
+                if(CheckCollisionRecs(captainAnimation.getHitboxRect(), gemstoneAnimation.getHitboxRect()) && spawnPowerUp){
                     system("cls");
                     PlaySound(powerUpSound);
                     std::cout << "Speed Up Collected! Speed: \n";
-                    hoodyAnimation.setPlayerSpeed(7.0f);
+                    captainAnimation.setPlayerSpeed(7.0f);
                     gemstoneAnimation.setPosition(rand() % 540, rand() % 360);
                     spawnPowerUp = false;
                 }  
 
-                if(CheckCollisionRecs(hoodyAnimation.getAttackRect(),  enemyAnimation.getHitboxRect())){
+                if(CheckCollisionRecs(captainAnimation.getAttackRect(),  enemyAnimation.getHitboxRect())){
                     system("cls");
                     int randomSound = rand() % 2; // Randomly choose between two sounds
                     if(randomSound == 0) {PlaySound(enemyHurtSound);}
@@ -132,7 +137,7 @@ int main()
                     }
                 }  
 
-                if(hoodyAnimation.getHealth() == 0){
+                if(captainAnimation.getHealth() == 0){
                     screen = 2;
                 }
             }
@@ -158,8 +163,8 @@ int main()
                 }
                 if(paused){
                     ShowCursor(); // Show cursor when paused
-                    hoodyAnimation.drawSprite();
-                    hoodyAnimation.drawHealthBar();
+                    captainAnimation.drawSprite();
+                    captainAnimation.drawHealthBar();
                     enemyAnimation.drawSprite();
                     enemyAnimation.drawHealthBar();
                     fireAnimation.drawSprite();
@@ -173,10 +178,10 @@ int main()
                 else{
                     HideCursor(); // Hide cursor when not paused
                     gameTime = GetTime();
-                    hoodyAnimation.updateSprite();
+                    captainAnimation.updateSprite();
                     enemyAnimation.updateSprite();
                     fireAnimation.updateSprite();
-                    enemyAnimation.chasePlayer(hoodyAnimation.getPositionX(), hoodyAnimation.getPositionY());
+                    enemyAnimation.chasePlayer(captainAnimation.getPositionX(), captainAnimation.getPositionY());
                     if(spawnPowerUp){
                     gemstoneAnimation.updateSprite();
                     }
@@ -201,9 +206,9 @@ int main()
                     collectableY = rand() % 360;
                     enemyAnimation.setPosition((rand() % 540) , (rand() % 360));
                     gemstoneAnimation.setPosition(rand() % 540, rand() % 360);
-                    hoodyAnimation.setPlayerSpeed(3.0f);
-                    hoodyAnimation.setPosition(220.0f, 300.0f);     
-                    hoodyAnimation.setHealth(100);          
+                    captainAnimation.setPlayerSpeed(3.0f);
+                    captainAnimation.setPosition(220.0f, 300.0f);     
+                    captainAnimation.setHealth(100);          
                     system("cls"); 
                     screen = 0;
                 }

@@ -64,6 +64,39 @@ Player::Player(const char* filePath, const char* filePath2, const char* filePath
     m_attackRect = { m_positionX, m_positionY, 0.0f, 0.0f};
 }
 
+// meat and potatoes
+Player::Player(const char* filePath, const char* filePath2, const char* filePath3, const char* filePath4, const char* filePath5, int frameCount) {
+    m_animationTextures[0] = LoadTexture(filePath); 
+    m_animationTextures[1] = LoadTexture(filePath2);
+    m_animationTextures[2] = LoadTexture(filePath3);
+    m_animationTextures[3] = LoadTexture(filePath4);
+    m_animationTextures[4] = LoadTexture(filePath5);
+    m_currentTexture = &m_animationTextures[0]; // default is idle
+    m_swordSlashSound = LoadSound("src/resources/swordSlash.mp3");
+
+    // Rectangles 
+    m_animationRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height }; 
+    m_hitboxRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height };
+    m_healthBarRect = { 540.0f, 330.0f, 100.0f, 20.f }; 
+
+    // frame stuff
+    m_currentFrame = 0; // 0 default frame
+    m_frameCount = frameCount;
+    m_runningTime = 0.0f; 
+    m_updateTime = 1.0f / 12.0f; 
+    m_playerHealth = 100;
+
+    // position and speed
+    m_positionX = rand() % 540; 
+    m_positionY = rand() % 360; 
+    m_idle = true; 
+    m_direction = 0;
+    m_lastDirection = 0;
+    m_playerSpeed = 3.0f; 
+    m_attackRect = { m_positionX, m_positionY, 0.0f, 0.0f};
+}
+
+
 void Player::drawSprite(){
     DrawTextureRec(*m_currentTexture, m_animationRect, {m_positionX, m_positionY}, WHITE);
 }
@@ -73,15 +106,23 @@ void Player::drawAttackHitbox(){
 }
 
 void Player::setState(int newState){
-    if (newState != m_currentState) {  // Only change when different
-        //std::cout << "setState called\n";
+    if ((m_currentState == 3 || m_currentState == 4) && !isAnimationComplete()) {
+            return; // return early to play full attack animation
+    }
+
+    if (newState != m_currentState) {  
         m_currentState = newState;
         m_lastDirection = newState;
 
-        // Set texture once when state changes
+        if (newState == 3 || newState == 4) {
+            m_currentFrame = 0; 
+        }
+
         switch(newState) {
             case 1: m_currentTexture = &m_animationTextures[2]; break;  // left
             case 2: m_currentTexture = &m_animationTextures[1]; break;  // right
+            case 3: m_currentTexture = &m_animationTextures[3]; break;  // right attack
+            case 4: m_currentTexture = &m_animationTextures[4]; break;  // left attack
             default: m_currentTexture = &m_animationTextures[0]; break; // idle
         }
     }
@@ -131,6 +172,8 @@ void Player::updateSprite() {
 
 
     if(IsKeyPressed(KEY_RIGHT)){
+        m_idle = false;
+        m_direction = 4; 
         m_attackRect.x = m_positionX + 28.0f; 
         m_attackRect.y = m_positionY + 8.0f;
         m_attackRect.width = 35.0f;
@@ -138,6 +181,8 @@ void Player::updateSprite() {
         PlaySound(m_swordSlashSound);
     }
     else if(IsKeyPressed(KEY_LEFT)){
+        m_idle = false;
+        m_direction = 3; 
         m_attackRect.x = m_positionX - 28.0f; 
         m_attackRect.y = m_positionY + 8.0f;
         m_attackRect.width = 35.0f; 
@@ -202,6 +247,10 @@ void Player::takeDamage(int damage) {
     }
 }
 
+bool Player::isAnimationComplete() {
+    // Check if the current frame is the last frame of the animation
+    return (m_currentFrame >= m_frameCount);
+}
 //----------------------------------------------//
 
 void Player::setPlayerSpeed(float speed) {

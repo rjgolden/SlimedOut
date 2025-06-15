@@ -53,6 +53,7 @@ int main()
     bool paused = false;
     bool fullscreen = false;
     float gameTime = 0.0f;
+    float pausedTime = 0.0f;
     float scale = 1.0f;
 
 
@@ -64,6 +65,7 @@ int main()
     // Power-up variables
     bool spawnPowerUp = false;
     bool powerUpSpawned = false;
+
 
     // Create hit boxes for player and collectables
     Rectangle collectableRect = {collectableX, collectableY, (float)collectable.width, (float)collectable.height};
@@ -173,11 +175,12 @@ int main()
                     }
                     DrawText("Game Paused", 200, 150, 40, RED);
                     DrawText("Press P to resume", 220, 200, 20, RED);
+                    pausedTime = GetTime() - gameTime;
                 }
 
                 else{
                     HideCursor(); // Hide cursor when not paused
-                    gameTime = GetTime();
+                    gameTime = GetTime() - pausedTime;
                     captainAnimation.updateSprite();
                     enemyAnimation.updateSprite();
                     fireAnimation.updateSprite();

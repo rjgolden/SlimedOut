@@ -2,7 +2,7 @@
 
 // Default
 Animation::Animation(){
-    m_animationTextures[0] = LoadTexture("src/resources/hoodyIdleAnimation.png");
+    m_animationTextures[0] = LoadTexture("src/resources/Animations/hoodyIdleAnimation.png");
     m_animationRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height };
     m_hitboxRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height };
     m_currentFrame = 0; // Starting frame

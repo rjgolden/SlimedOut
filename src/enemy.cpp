@@ -32,7 +32,7 @@ Enemy::Enemy(const char* filePath, int frameCount){
 
     // Load textures
     m_animationTextures[0] = LoadTexture(filePath); 
-    m_enemyHurt = LoadTexture("src/resources/hoodyGuyEnemyHurt.png"); // Load enemy hurt texture
+    m_enemyHurt = LoadTexture("src/resources/Textures/hoodyGuyEnemyHurt.png"); // Load enemy hurt texture
 
     // Rectangles 
     m_animationRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height }; 
@@ -145,6 +145,10 @@ void Enemy::updateSprite(){
 int Enemy::getHealth() {
     return m_health;
 }  
+
+Vector2 Enemy::getPosition() {
+    return { m_positionX, m_positionY };
+}
 
 void Enemy::setHealth(int health) {
     m_health = health;

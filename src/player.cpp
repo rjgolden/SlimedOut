@@ -2,10 +2,10 @@
 
 // Default and Destructor
 Player::Player(){
-    m_animationTextures[0] = LoadTexture("src/resources/hoodyIdleAnimation.png");
-    m_animationTextures[1] = LoadTexture("src/resources/hoodyRunAnimation.png");
-    m_animationTextures[2] = LoadTexture("src/resources/hoodyRunAnimation2.png");
-    m_swordSlashSound = LoadSound("src/resources/swordSlash.mp3");
+    m_animationTextures[0] = LoadTexture("src/resources/Animations/hoodyIdleAnimation.png");
+    m_animationTextures[1] = LoadTexture("src/resources/Animations/hoodyRunAnimation.png");
+    m_animationTextures[2] = LoadTexture("src/resources/Animations/hoodyRunAnimation2.png");
+    m_swordSlashSound = LoadSound("src/resources/Sounds/swordSlash.mp3");
 
     m_animationRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height };
     m_hitboxRect = { 0.0f, 0.0f, (float)m_animationTextures[0].width / 6.0f, (float)m_animationTextures[0].height };
@@ -95,7 +95,6 @@ Player::Player(const char* filePath, const char* filePath2, const char* filePath
     m_playerSpeed = 3.0f; 
     m_attackRect = { m_positionX, m_positionY, 0.0f, 0.0f};
 }
-
 
 void Player::drawSprite(){
     DrawTextureRec(*m_currentTexture, m_animationRect, {m_positionX, m_positionY}, WHITE);
